@@ -9,6 +9,6 @@ export const userSchema = joi.object({
 });
 
 export const loginSchema = joi.object({
-  email: joi.string().email().required(),
+  email: joi.string().required(),
   password: joi.string().required()
 });
