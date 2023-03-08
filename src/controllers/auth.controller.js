@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { v4 as uuid } from 'uuid';
-import db from '../database/db.js';
+import { insertNewUser, findExistUser, exportSession } from '../repository/auth.repository.js';
 
 export async function signUp(req, res) {
   const { username, email, password, picture } = res.locals.user;
