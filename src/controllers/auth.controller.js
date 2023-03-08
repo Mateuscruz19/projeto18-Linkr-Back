@@ -1,20 +1,17 @@
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
-import db from "../database/db.js";
+import { insertNewUser,findExistUser, exportSession } from "../repository/auth.repository.js"
 
 export async function signUp(req, res) {
-    const { username, email, password,picture } = res.locals.user;
-
+    const { email,password,picture,username } = res.locals.user;
 
     const passwordHash = bcrypt.hashSync(password, 10);
 
     try {
         const timeElapsed = Date.now();
         const today = new Date(timeElapsed);
-      await db.query(
-        "INSERT INTO users (email,password,name,avatar_url,updated_at) VALUES ($1, $2, $3, $4, $5)",
-        [email, passwordHash, username, picture, today]
-      );
+
+      await insertNewUser(username, email, passwordHash,picture,today)
 
      return res.sendStatus(201);
     } catch (err) {
@@ -23,15 +20,12 @@ export async function signUp(req, res) {
 }
 
 export async function signIn(req, res) {
-    const { email, password } = res.locals.user;
+    const { email, password } = req.body;
 
         const timeElapsed = Date.now();
         const today = new Date(timeElapsed);
 
-        const { rows: users } = await db.query(
-            `SELECT * FROM users WHERE email = $1 `,
-            [email]
-        );
+        const { rows: users } = await findExistUser(email)
         const [user] = users;
 
         if (!user) {
@@ -42,11 +36,8 @@ export async function signIn(req, res) {
 
         if (passwordConfirm === true) {
             const token = uuid();
-            await db.query(
-            `
-        INSERT INTO sessions (token, user_Id,expires_at) VALUES ($1, $2, $3)`,
-            [token, user.id,today]
-            );
+            await exportSession(token, user.id,today)
+
            return res.status(200).send({token:token})
         }
         res.sendStatus(401);
