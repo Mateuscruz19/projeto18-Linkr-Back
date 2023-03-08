@@ -10,8 +10,6 @@ const connectionDB = {
 
 if (process.env.MODE === "prod") connectionDB.ssl = true;
 
-console.log(process.env.DATABASE_URL);
-
 const db = new Pool(connectionDB);
 
 export default db;
