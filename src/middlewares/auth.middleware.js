@@ -1,26 +1,38 @@
-import { userSchema } from "../models/auth.schema.js";
-import { connectionDB } from "../database/db.js";
+import internalServerError from '../utils/functions/internalServerError.js';
+import { findSessionByToken, findUserAlreadyExist } from '../repository/auth.repository.js';
+
 
 export async function userSchemaValidation(req, res, next) {
+  const user = req.body;
 
-    const user = req.body;
-  
-    const emailExists = await connectionDB.query("SELECT * FROM users WHERE email=$1",[user.email]);
-  
-    if (emailExists.rowCount > 0) {
-        return res.sendStatus(409);
-      }
+  const emailExists = await findUserAlreadyExist(user);
 
-    res.locals.user = user;
+  if (emailExists.rowCount > 0) {
+    return res.sendStatus(409);
+  }
 
-    next();
+  res.locals.user = user;
+
+  next();
 }
 
-export async function signInBodyValidation(req, res, next) {
+export async function authenticate(req, res, next) {
+  const { authorization } = req.headers;
 
-    const user = req.body;
+  const token = authorization?.replace('Bearer ', '');
 
-    res.locals.user = user;
+
+  if (!token) return res.sendStatus(401);
+
+  try {
+    const { rowCount, rows: session } = await findSessionByToken(token);
+
+    if (!rowCount) return res.sendStatus(401);
+
+    res.locals.userId = session[0].user_id;
 
     next();
+  } catch (error) {
+    internalServerError(res, error);
+  }
 }
