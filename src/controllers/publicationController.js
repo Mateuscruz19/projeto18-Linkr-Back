@@ -10,7 +10,7 @@ import {
 } from '../repository/publicationRepository.js';
 
 export async function postPublication(req, res) {
-  const { link, description, name } = req.body;
+  const { link, description } = req.body;
 
   const userId = res.locals.userId;
 
@@ -19,7 +19,18 @@ export async function postPublication(req, res) {
 
     console.log(ultimoPost);
 
-    await insertHashtags(ultimoPost.rows[0].id, name);
+    function extractHashtags(str) {
+      const regex = /#\w+/g; // matches all hashtags in the form #word
+      const hashtags = str.match(regex); // extracts all hashtags from the string
+      return hashtags || []; // returns an empty array if no hashtags were found
+    }
+
+    const hashtags = extractHashtags(description);
+    
+    for (let i = 0; i < hashtags.length; i++) {
+      await insertHashtags(ultimoPost.rows[0].id, hashtags[i]);
+    }
+    
 
     res.sendStatus(200);
   } catch (err) {
