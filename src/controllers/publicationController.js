@@ -6,6 +6,7 @@ import {
   getPublications,
   deletePostById,
   deleteHashtagByIdPost,
+  updatePostByid,
 } from '../repository/publicationRepository.js';
 
 export async function postPublication(req, res) {
@@ -37,6 +38,20 @@ export async function getPublication(req, res) {
     res.status(200).send(body);
   } catch (err) {
     res.status(500).send(err.message);
+  }
+}
+
+export async function updateDescriptionPublication(req, res) {
+  const { id } = req.params;
+  const { description } = req.body;
+
+  try {
+    await updatePostByid(description, id);
+
+    return res.send('Alterado com sucesso!');
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Ocorreu um erro interno!');
   }
 }
 

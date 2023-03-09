@@ -10,3 +10,7 @@ export const publicationSchema = joi.object({
   description: joi.string().required(),
   name: joi.string().required(),
 });
+
+export const updatePostSchema = joi.object({
+  description: joi.string().required(),
+});
