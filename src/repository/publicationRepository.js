@@ -49,3 +49,25 @@ export async function getPublications() {
 
   return result;
 }
+
+export async function queryVerifyUserId(postId, userId) {
+  return await db.query(
+    `SELECT 
+  posts.id AS "postId", 
+  posts.user_id AS "userId",
+  hashtags.id AS "hashtagId"   
+  FROM posts 
+  JOIN hashtags 
+  ON posts.id = hashtags.post_id 
+  WHERE posts.id = $1 and posts.user_id = $2;`,
+    [postId, userId]
+  );
+}
+
+export async function deleteHashtagByIdPost(postId) {
+  return await db.query('DELETE FROM hashtags WHERE post_id = $1', [postId]);
+}
+
+export async function deletePostById(postId) {
+  return await db.query('DELETE FROM posts WHERE id = $1', [postId]);
+}
