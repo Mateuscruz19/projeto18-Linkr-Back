@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import Auth from './routes/auth.route.js';
 import publicationRoutes from './routes/publicationRoutes.js';
 import { usersRouter } from './routes/users.route.js';
+import hashtagRoutes from './routes/hashtagRoutes.js';
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ app.use(cors());
 app.use(express.json());
 app.use(Auth);
 app.use(publicationRoutes);
+app.use(hashtagRoutes);
 app.use('/users', usersRouter);
 
 const port = process.env.PORT || '4000';

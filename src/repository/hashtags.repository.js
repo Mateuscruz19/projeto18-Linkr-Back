@@ -1,6 +1,6 @@
 import db from "../database/db";
 
-export async function getTrendings(){
+export async function getTrendings_rep(){
 	return await db.query(`
 		SELECT hashtags.name FROM hashtags
 		GROUP BY hashtags.name
@@ -10,7 +10,7 @@ export async function getTrendings(){
 	`);
 }
 
-export async function getByHashtags(hashtag){
+export async function getByHashtag_rep(hashtag){
 	return await db.query(`
 		SELECT posts.id, posts. user_id, posts.link, posts.description, posts.created_at, posts.updated_at FROM posts
 		JOIN hashtags ON hashtags.post_id = posts.id
