@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import Auth from './routes/auth.route.js';
 import publicationRoutes from './routes/publicationRoutes.js';
 import { usersRouter } from './routes/users.route.js';
-import hashtagRoutes from './routes/hashtagRoutes.js';
+import hashtagRoutes from './routes/hashtags.route.js';
 
 dotenv.config();
 

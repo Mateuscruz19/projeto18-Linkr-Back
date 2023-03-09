@@ -1,4 +1,4 @@
-import db from "../database/db";
+import db from "../database/db.js";
 
 export async function getTrendings_rep(){
 	return await db.query(`
@@ -14,7 +14,7 @@ export async function getByHashtag_rep(hashtag){
 	return await db.query(`
 		SELECT posts.id, posts. user_id, posts.link, posts.description, posts.created_at, posts.updated_at FROM posts
 		JOIN hashtags ON hashtags.post_id = posts.id
-		WHERE hashtags.name = '#hash9'
+		WHERE hashtags.name = '#${hashtag}'
 		ORDER BY posts.created_at DESC
 		;
 	`);

@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { getTrendings, getByHashtag } from "../controllers/hashtags.controller";
+import { getTrendings, getByHashtag } from "../controllers/hashtags.controller.js";
 
 const hashtagRoutes = Router()
 
