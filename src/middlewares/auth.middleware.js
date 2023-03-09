@@ -1,8 +1,5 @@
-import { userSchema } from '../models/auth.schema.js';
-import db from '../database/db.js';
 import internalServerError from '../utils/functions/internalServerError.js';
-import { findSessionByToken } from '../repository/auth.repository.js';
-import { findUserAlreadyExist } from '../repository/auth.repository.js';
+import { findSessionByToken, findUserAlreadyExist } from '../repository/auth.repository.js';
 
 export async function userSchemaValidation(req, res, next) {
   const user = req.body;
