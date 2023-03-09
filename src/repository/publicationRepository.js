@@ -57,7 +57,7 @@ export async function queryVerifyUserId(postId, userId) {
   posts.user_id AS "userId",
   hashtags.id AS "hashtagId"   
   FROM posts 
-  JOIN hashtags 
+  LEFT JOIN hashtags 
   ON posts.id = hashtags.post_id 
   WHERE posts.id = $1 and posts.user_id = $2;`,
     [postId, userId]
@@ -70,4 +70,8 @@ export async function deleteHashtagByIdPost(postId) {
 
 export async function deletePostById(postId) {
   return await db.query('DELETE FROM posts WHERE id = $1', [postId]);
+}
+
+export async function updatePostByid(description, postId) {
+  return await db.query('UPDATE posts SET description=$1 WHERE id = $2;', [description, postId]);
 }
