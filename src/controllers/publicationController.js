@@ -9,8 +9,10 @@ import {
 export async function postPublication(req, res) {
   const { link, description, name } = req.body;
 
+  const userId = res.locals.userId;
+
   try {
-    const ultimoPost = await insertPosts(userExist.rows[0].user_id, link, description);
+    const ultimoPost = await insertPosts(userId, link, description);
 
     console.log(ultimoPost);
 
