@@ -23,7 +23,7 @@ export async function getByHashtag_rep(hashtag){
 	JOIN hashtags ON hashtags.post_id = posts.id
 	JOIN users ON users.id = posts.user_id
 	FULL JOIN likes ON likes.post_id = posts.id
-	WHERE hashtags.name = '#hash10'
+	WHERE hashtags.name = '#${hashtag}'
 	GROUP BY posts.id, users.name, users.avatar_url 
 	ORDER BY posts.created_at DESC
 	;
