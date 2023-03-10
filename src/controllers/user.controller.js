@@ -1,5 +1,5 @@
 import internalServerError from "../utils/functions/internalServerError.js";
-import { findUserById, findUsersByUsername } from "../repository/user.repository.js";
+import { findPublicationsByUserId, findUserById, findUsersByUsername } from "../repository/user.repository.js";
 
 async function showByUsername(req, res) {
   const { username } = req.query;
@@ -20,11 +20,28 @@ async function getCurrentUserById(req, res){
     const {rows: currentUser} = await findUserById(userId);
 
     const {id, name, avatar_url: avatarUrl} = currentUser[0];
-    
+
     res.send({id, name, avatarUrl});
   } catch (error) {
     internalServerError(res, error);
   }
 }
 
-export default { showByUsername, getCurrentUserById };
+export async function getPublicationByUserId(req, res) {
+  const { userId } = req.params;
+
+  try {
+    const result = await findPublicationsByUserId(userId);
+
+    const body = result.rows.map((item) => item.json_build_object);
+
+    console.log(body);
+
+    res.status(200).send(body);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+}
+
+
+export default { showByUsername, getCurrentUserById, getPublicationByUserId };

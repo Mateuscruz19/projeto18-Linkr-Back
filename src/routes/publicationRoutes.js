@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import {
   deletePublication,
-  getPublicationByUserId,
   postPublication,
   updateDescriptionPublication,
   getUserLikePublication,
@@ -21,7 +20,6 @@ import {
 const router = Router();
 
 router.get('/publication', authenticate, getPublication);
-router.get('/publication/user/:userId', authenticate, getPublicationByUserId);
 router.get('/publication/:postId/likes', authenticate, validateIdAndLimit, getUserLikePublication);
 router.post('/publication/:postId/likes', authenticate, validatePostId, sendLikeInPost);
 router.post('/publication', validateSchema(publicationSchema), authenticate, postPublication);
