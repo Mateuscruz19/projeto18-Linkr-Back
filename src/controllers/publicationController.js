@@ -8,7 +8,24 @@ import {
   deleteHashtagByIdPost,
   updatePostByid,
   findPublicationsByUserId,
-} from "../repository/publicationRepository.js";
+  findUsersLikByPostId,
+  insertLikeInPost,
+  deleteLikeInPost,
+} from '../repository/publicationRepository.js';
+
+export async function getUserLikePublication(req, res) {
+  const { postId } = req.params;
+  const { limit } = req.query;
+
+  try {
+    const users = await findUsersLikByPostId(postId, limit);
+
+    res.send(users.rows);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Ocorreu um erro interno!');
+  }
+}
 
 export async function postPublication(req, res) {
   const { link, description } = req.body;
@@ -27,11 +44,10 @@ export async function postPublication(req, res) {
     }
 
     const hashtags = extractHashtags(description);
-    
+
     for (let i = 0; i < hashtags.length; i++) {
       await insertHashtags(ultimoPost.rows[0].id, hashtags[i]);
     }
-    
 
     res.sendStatus(200);
   } catch (err) {
@@ -43,7 +59,12 @@ export async function getPublication(req, res) {
   try {
     const result = await getPublications();
 
-    const body = result.rows.map((item) => item.json_build_object);
+    const body = result.rows.map((item) => {
+      if (item.json_build_object.idUsersLike[0].id === null) {
+        item.json_build_object.idUsersLike = [];
+      }
+      return item.json_build_object;
+    });
 
     console.log(body);
 
@@ -69,6 +90,23 @@ export async function getPublicationByUserId(req, res) {
   }
 }
 
+export async function sendLikeInPost(req, res) {
+  const { postId } = req.params;
+  const userId = res.locals.userId;
+
+  console.log(postId);
+  console.log(userId);
+
+  try {
+    await insertLikeInPost(postId, userId);
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Ocorreu um erro interno!');
+  }
+}
+
 export async function updateDescriptionPublication(req, res) {
   const { id } = req.params;
   const { description } = req.body;
@@ -76,10 +114,10 @@ export async function updateDescriptionPublication(req, res) {
   try {
     await updatePostByid(description, id);
 
-    return res.send("Alterado com sucesso!");
+    return res.send('Alterado com sucesso!');
   } catch (error) {
     console.log(error);
-    res.status(500).send("Ocorreu um erro interno!");
+    res.status(500).send('Ocorreu um erro interno!');
   }
 }
 
@@ -95,6 +133,20 @@ export async function deletePublication(req, res) {
     res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    res.status(500).send("Ocorreu um erro interno!");
+    res.status(500).send('Ocorreu um erro interno!');
+  }
+}
+
+export async function deleteLikePublication(req, res) {
+  const { postId } = req.params;
+  const userId = res.locals.userId;
+
+  try {
+    await deleteLikeInPost(postId, userId);
+
+    res.sendStatus(204);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Ocorreu um erro interno!');
   }
 }
