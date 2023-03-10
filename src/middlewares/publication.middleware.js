@@ -4,12 +4,10 @@ export async function verifyPostIsUser(req, res, next) {
   const userId = res.locals.userId;
   const { id } = req.params;
 
-  console.log(userId);
-  console.log(id);
 
   try {
     const { rowCount, rows: post } = await queryVerifyUserId(id, userId);
-    console.log(rowCount);
+
     if (!rowCount) {
       return res.status(401).send('Esse post não pertence a esse usuário!');
     }
@@ -36,7 +34,7 @@ export async function validateIdAndLimit(req, res, next) {
 
 export async function validatePostId(req, res, next) {
   const { postId } = req.params;
-  console.log('chegou validatePostId');
+  
   if (!postId) {
     return res.status(422).send('Não esqueça de definir o id do post!');
   }
