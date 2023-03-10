@@ -7,7 +7,6 @@ import {
   deletePostById,
   deleteHashtagByIdPost,
   updatePostByid,
-  findPublicationsByUserId,
   findUsersLikByPostId,
   insertLikeInPost,
   deleteLikeInPost,
@@ -65,22 +64,6 @@ export async function getPublication(req, res) {
       }
       return item.json_build_object;
     });
-
-    console.log(body);
-
-    res.status(200).send(body);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-}
-
-export async function getPublicationByUserId(req, res) {
-  const { userId } = req.params;
-
-  try {
-    const result = await findPublicationsByUserId(userId);
-
-    const body = result.rows.map((item) => item.json_build_object);
 
     console.log(body);
 
