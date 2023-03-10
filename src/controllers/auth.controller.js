@@ -37,8 +37,11 @@ export async function signIn(req, res) {
   if (passwordConfirm === true) {
     const token = uuid();
     await exportSession(token, user.id, today);
+    delete user.password;
+    delete user.created_at;
+    delete user.updated_at;
 
-    return res.status(200).send({ token: token });
+    return res.status(200).send({ ...user, token: token });
   }
   res.sendStatus(401);
 }
