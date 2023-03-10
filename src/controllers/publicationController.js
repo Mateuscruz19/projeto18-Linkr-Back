@@ -7,7 +7,8 @@ import {
   deletePostById,
   deleteHashtagByIdPost,
   updatePostByid,
-} from '../repository/publicationRepository.js';
+  findPublicationsByUserId,
+} from "../repository/publicationRepository.js";
 
 export async function postPublication(req, res) {
   const { link, description } = req.body;
@@ -52,6 +53,22 @@ export async function getPublication(req, res) {
   }
 }
 
+export async function getPublicationByUserId(req, res) {
+  const { userId } = req.params;
+
+  try {
+    const result = await findPublicationsByUserId(userId);
+
+    const body = result.rows.map((item) => item.json_build_object);
+
+    console.log(body);
+
+    res.status(200).send(body);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+}
+
 export async function updateDescriptionPublication(req, res) {
   const { id } = req.params;
   const { description } = req.body;
@@ -59,10 +76,10 @@ export async function updateDescriptionPublication(req, res) {
   try {
     await updatePostByid(description, id);
 
-    return res.send('Alterado com sucesso!');
+    return res.send("Alterado com sucesso!");
   } catch (error) {
     console.log(error);
-    res.status(500).send('Ocorreu um erro interno!');
+    res.status(500).send("Ocorreu um erro interno!");
   }
 }
 
@@ -78,6 +95,6 @@ export async function deletePublication(req, res) {
     res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    res.status(500).send('Ocorreu um erro interno!');
+    res.status(500).send("Ocorreu um erro interno!");
   }
 }
