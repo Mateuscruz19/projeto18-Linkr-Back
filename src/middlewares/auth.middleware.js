@@ -1,7 +1,6 @@
 import internalServerError from '../utils/functions/internalServerError.js';
 import { findSessionByToken, findUserAlreadyExist } from '../repository/auth.repository.js';
 
-
 export async function userSchemaValidation(req, res, next) {
   const user = req.body;
 
@@ -18,9 +17,7 @@ export async function userSchemaValidation(req, res, next) {
 
 export async function authenticate(req, res, next) {
   const { authorization } = req.headers;
-
   const token = authorization?.replace('Bearer ', '');
-
 
   if (!token) return res.sendStatus(401);
 
