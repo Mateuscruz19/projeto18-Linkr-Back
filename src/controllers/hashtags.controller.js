@@ -12,8 +12,16 @@ export async function getTrendings(req, res){
 
 export async function getByHashtag(req, res){
 	try {
-		const results = await getByHashtag_rep(req.params.hashtag)
-		return res.status(200).send(results.rows)
+		const result = await getByHashtag_rep(req.params.hashtag);
+
+		const body = result.rows.map((item) => {
+		  if (item.json_build_object.idUsersLike[0].id === null) {
+			item.json_build_object.idUsersLike = [];
+		  }
+		  return item.json_build_object;
+		});
+	
+		res.status(200).send(body);
 	} catch (error) {
 		res.status(500).send(error.message)
 	}

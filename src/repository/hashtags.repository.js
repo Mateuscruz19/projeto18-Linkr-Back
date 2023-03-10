@@ -12,10 +12,31 @@ export async function getTrendings_rep(){
 
 export async function getByHashtag_rep(hashtag){
 	return await db.query(`
-		SELECT posts.id, posts. user_id, posts.link, posts.description, posts.created_at, posts.updated_at FROM posts
-		JOIN hashtags ON hashtags.post_id = posts.id
-		WHERE hashtags.name = '#${hashtag}'
-		ORDER BY posts.created_at DESC
-		;
+	SELECT json_build_object(
+		'id', posts.id,
+		'userId', users.id,
+		'name', users.name,
+		'avatarImage', users.avatar_url,
+		'descriptionPost', posts.description,
+		'linkPost', posts.link,
+		'qtyLikesPost', COUNT(likes.id),
+		'idUsersLike', array_agg(json_build_object(
+		'id', likes.user_id
+		)),
+		'hashtags', array_agg(json_build_object(
+			'id', hashtags.id,
+			'nameHashtag', hashtags.name
+		))
+	  )
+	  FROM users
+	  JOIN posts
+	  ON users.id = posts.user_id
+	  LEFT JOIN hashtags
+	  ON posts.id = hashtags.post_id
+	  LEFT JOIN likes
+	  ON posts.id = likes.post_id
+	  WHERE hashtags.name = '#${hashtag}'
+	  GROUP BY users.id, posts.id
+	  ORDER BY posts.id DESC;
 	`);
 }
