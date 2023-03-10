@@ -10,7 +10,7 @@ import {
   findUsersLikByPostId,
   insertLikeInPost,
   deleteLikeInPost,
-} from '../repository/publicationRepository.js';
+} from "../repository/publicationRepository.js";
 
 export async function getUserLikePublication(req, res) {
   const { postId } = req.params;
@@ -22,7 +22,7 @@ export async function getUserLikePublication(req, res) {
     res.send(users.rows);
   } catch (error) {
     console.log(error);
-    res.status(500).send('Ocorreu um erro interno!');
+    res.status(500).send("Ocorreu um erro interno!");
   }
 }
 
@@ -34,18 +34,18 @@ export async function postPublication(req, res) {
   try {
     const ultimoPost = await insertPosts(userId, link, description);
 
-    console.log(ultimoPost);
+    const hashtags = description
+      .split(" ")
+      .filter((word) => word.charAt() === "#");
 
-    function extractHashtags(str) {
-      const regex = /#\w+/g; // matches all hashtags in the form #word
-      const hashtags = str.match(regex); // extracts all hashtags from the string
-      return hashtags || []; // returns an empty array if no hashtags were found
-    }
+    if (hashtags.length) {
+      const inserts = [];
 
-    const hashtags = extractHashtags(description);
+      for (let index = 1; index <= hashtags.length; index++) {
+        inserts.push(`(${ultimoPost.rows[0].id} ,$${index})`);
+      }
 
-    for (let i = 0; i < hashtags.length; i++) {
-      await insertHashtags(ultimoPost.rows[0].id, hashtags[i]);
+      await insertHashtags(inserts.join(", "), hashtags);
     }
 
     res.sendStatus(200);
@@ -65,8 +65,6 @@ export async function getPublication(req, res) {
       return item.json_build_object;
     });
 
-    console.log(body);
-
     res.status(200).send(body);
   } catch (err) {
     res.status(500).send(err.message);
@@ -77,16 +75,13 @@ export async function sendLikeInPost(req, res) {
   const { postId } = req.params;
   const userId = res.locals.userId;
 
-  console.log(postId);
-  console.log(userId);
-
   try {
     await insertLikeInPost(postId, userId);
 
     res.sendStatus(200);
   } catch (error) {
     console.log(error);
-    res.status(500).send('Ocorreu um erro interno!');
+    res.status(500).send("Ocorreu um erro interno!");
   }
 }
 
@@ -97,18 +92,17 @@ export async function updateDescriptionPublication(req, res) {
   try {
     await updatePostByid(description, id);
 
-    return res.send('Alterado com sucesso!');
+    return res.send("Alterado com sucesso!");
   } catch (error) {
     console.log(error);
-    res.status(500).send('Ocorreu um erro interno!');
+    res.status(500).send("Ocorreu um erro interno!");
   }
 }
 
 export async function deletePublication(req, res) {
   const { id } = req.params;
   const post = res.locals.post;
-
-  console.log(post);
+  
   try {
     await deleteHashtagByIdPost(id);
     await deletePostById(id);
@@ -116,7 +110,7 @@ export async function deletePublication(req, res) {
     res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    res.status(500).send('Ocorreu um erro interno!');
+    res.status(500).send("Ocorreu um erro interno!");
   }
 }
 
@@ -130,6 +124,6 @@ export async function deleteLikePublication(req, res) {
     res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    res.status(500).send('Ocorreu um erro interno!');
+    res.status(500).send("Ocorreu um erro interno!");
   }
 }

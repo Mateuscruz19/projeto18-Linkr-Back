@@ -20,10 +20,10 @@ export async function findUltimoPostId() {
   return result;
 }
 
-export async function insertHashtags(post, name) {
+export async function insertHashtags(insertIndex, hashtags) {
   const result = await db.query(
-    `INSERT INTO hashtags (post_id, name) VALUES ($1, $2)`,
-    [post, name]
+    `INSERT INTO hashtags (post_id, name) VALUES ${insertIndex}`,
+    hashtags
   );
   return result;
 }

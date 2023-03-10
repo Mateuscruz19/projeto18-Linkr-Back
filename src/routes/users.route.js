@@ -6,6 +6,10 @@ const router = Router("/users");
 
 router.get("/", authenticate, userController.showByUsername);
 router.get("/current", authenticate, userController.getCurrentUserById);
-router.get('/:userId/publication', authenticate, userController.getPublicationByUserId);
+router.get(
+  "/:userId/publication",
+  authenticate,
+  userController.getPublicationByUserId
+);
 
 export { router as usersRouter };

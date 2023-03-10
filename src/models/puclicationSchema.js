@@ -1,10 +1,11 @@
-import joi from 'joi';
+import Joi from "joi";
 
-export const publicationSchema = joi.object({
-  link: joi.string().uri().required(),
-  description: joi.string().required()
+export const publicationSchema = Joi.object({
+  link: Joi.string().uri().required(),
+  description: Joi.string(),
+  hashtags: Joi.array().items(Joi.string()),
 });
 
-export const updatePostSchema = joi.object({
-  description: joi.string().required(),
+export const updatePostSchema = Joi.object({
+  description: Joi.string().required(),
 });

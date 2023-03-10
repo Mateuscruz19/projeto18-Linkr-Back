@@ -35,8 +35,6 @@ export async function getPublicationByUserId(req, res) {
 
     const body = result.rows.map((item) => item.json_build_object);
 
-    console.log(body);
-
     res.status(200).send(body);
   } catch (err) {
     res.status(500).send(err.message);
