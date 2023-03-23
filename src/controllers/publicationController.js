@@ -10,7 +10,9 @@ import {
   findUsersLikByPostId,
   insertLikeInPost,
   deleteLikeInPost,
+  insertComment,
 } from "../repository/publicationRepository.js";
+import internalServerError from "../utils/functions/internalServerError.js";
 
 export async function getUserLikePublication(req, res) {
   const { postId } = req.params;
@@ -102,7 +104,7 @@ export async function updateDescriptionPublication(req, res) {
 export async function deletePublication(req, res) {
   const { id } = req.params;
   const post = res.locals.post;
-  
+
   try {
     await deleteHashtagByIdPost(id);
     await deletePostById(id);
@@ -126,4 +128,19 @@ export async function deleteLikePublication(req, res) {
     console.log(error);
     res.status(500).send("Ocorreu um erro interno!");
   }
+}
+
+export async function createComment(req, res){
+  const {postId} = req.params;
+  const {userId} = res.locals;
+  const {comment} = req.body;
+
+  try {
+    await insertComment({postId, userId, comment});
+
+    res.sendStatus(201);
+  } catch (error) {
+    internalServerError(error);
+  }
+
 }

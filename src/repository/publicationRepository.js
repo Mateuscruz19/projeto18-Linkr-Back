@@ -120,3 +120,10 @@ export async function deleteLikeInPost(postId, userId) {
     userId,
   ]);
 }
+
+export async function insertComment({ postId, userId, comment }) {
+  return db.query(
+    "INSERT INTO comments (post_id, user_id, comment) VALUES ($1, $2, $3);",
+    [postId, userId, comment]
+  );
+}
