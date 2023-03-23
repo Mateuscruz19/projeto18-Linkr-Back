@@ -41,3 +41,23 @@ export async function findPublicationsByUserId(userId) {
     [userId]
   );
 }
+
+export async function verifyUserIdFollowOtherUser(userId, followUserId) {
+  return await db.query('SELECT * FROM followers WHERE user_id = $1 AND followed_id = $2;', [
+    userId,
+    followUserId,
+  ]);
+}
+
+export async function insertFollowUser(userId, followUserId) {
+  return await db.query('INSERT INTO followers (user_id, followed_id) VALUES ($1, $2);', [
+    userId,
+    followUserId,
+  ]);
+}
+
+export async function deleteFollowUserRepository(userId, followUserId) {
+  return await db.query(
+    `DELETE FROM followers WHERE user_id = ${userId} AND followed_id = ${followUserId};`
+  );
+}
