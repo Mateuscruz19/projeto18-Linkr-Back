@@ -8,13 +8,15 @@ import {
 } from '../repository/user.repository.js';
 
 async function showByUsername(req, res) {
+  const { userId } = res.locals;
   const { username } = req.query;
 
   try {
-    const { rows: users } = await findUsersByUsername(username);
+    const { rows: users } = await findUsersByUsername(username, userId);
 
     res.send(users);
   } catch (error) {
+    console.log(error)
     internalServerError(res, error);
   }
 }
