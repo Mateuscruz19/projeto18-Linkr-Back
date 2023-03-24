@@ -1,5 +1,11 @@
-import internalServerError from "../utils/functions/internalServerError.js";
-import { findPublicationsByUserId, findUserById, findUsersByUsername } from "../repository/user.repository.js";
+import internalServerError from '../utils/functions/internalServerError.js';
+import {
+  findPublicationsByUserId,
+  findUserById,
+  findUsersByUsername,
+  insertFollowUser,
+  deleteFollowUserRepository,
+} from '../repository/user.repository.js';
 
 async function showByUsername(req, res) {
   const { username } = req.query;
@@ -13,21 +19,21 @@ async function showByUsername(req, res) {
   }
 }
 
-async function getCurrentUserById(req, res){
-  const {userId} = res.locals;
+async function getCurrentUserById(req, res) {
+  const { userId } = res.locals;
 
   try {
-    const {rows: currentUser} = await findUserById(userId);
+    const { rows: currentUser } = await findUserById(userId);
 
-    const {id, name, avatar_url: avatarUrl} = currentUser[0];
+    const { id, name, avatar_url: avatarUrl } = currentUser[0];
 
-    res.send({id, name, avatarUrl});
+    res.send({ id, name, avatarUrl });
   } catch (error) {
     internalServerError(res, error);
   }
 }
 
-export async function getPublicationByUserId(req, res) {
+async function getPublicationByUserId(req, res) {
   const { userId } = req.params;
 
   try {
@@ -41,5 +47,63 @@ export async function getPublicationByUserId(req, res) {
   }
 }
 
+async function verifyFollowUser(req, res) {
+  const followExist = res.locals.followExist;
+  try {
+    console.log(followExist);
+    if (followExist == 0) {
+      return res.send(false);
+    }
+    if (followExist == 1) {
+      return res.send(true);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Ocorreu um erro interno!');
+  }
+}
 
-export default { showByUsername, getCurrentUserById, getPublicationByUserId };
+async function postFollowUser(req, res) {
+  const followUserId = req.params.followUserId;
+  const userId = res.locals.userId;
+  const followExist = res.locals.followExist;
+  console.log(followExist);
+  if (followExist > 0) return res.status(409).send('Você não pode seguir alguém já seguido!');
+  try {
+    await insertFollowUser(userId, followUserId);
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Ocorreu um erro interno!');
+  }
+}
+
+async function deleteFollowUser(req, res) {
+  const followUserId = req.params.followUserId;
+  const userId = res.locals.userId;
+  const followExist = res.locals.followExist;
+  console.log(userId);
+
+  if (followExist <= 0)
+    return res.status(409).send('Você não pode des seguir alguém que ainda não seguiu!');
+
+  try {
+    console.log(followUserId);
+    await deleteFollowUserRepository(userId, Number(followUserId));
+
+    res.sendStatus(204);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Ocorreu um erro interno!');
+  }
+}
+
+export default {
+  showByUsername,
+  getCurrentUserById,
+  getPublicationByUserId,
+  postFollowUser,
+  deleteFollowUser,
+  verifyFollowUser,
+};
