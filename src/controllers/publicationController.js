@@ -1,7 +1,5 @@
 import {
-  findUser,
   insertPosts,
-  findUltimoPostId,
   insertHashtags,
   getPublications,
   deletePostById,
@@ -12,9 +10,7 @@ import {
   deleteLikeInPost,
   insertComment,
   findCommentByPostId,
-  findFollowedsByUserId,
 } from "../repository/publicationRepository.js";
-import createFollowersHashTable from "../utils/functions/createHashTable.js";
 import internalServerError from "../utils/functions/internalServerError.js";
 
 export async function getUserLikePublication(req, res) {
@@ -152,23 +148,19 @@ export async function getCommentsByPostId(req, res) {
   const { userId } = res.locals;
 
   try {
-    const { rowCount, rows: commentsData } = await findCommentByPostId(postId);
+    const { rowCount, rows: commentsData } = await findCommentByPostId({postId, userId});
 
     if (!rowCount) return res.status(200).send(null);
 
-    const { rows: followers } = await findFollowedsByUserId(userId);
+     const comments = commentsData.map((c)=> {
+       if(c.following) return {...c,status: 'following'};
 
-    const hashTableFollowers = createFollowersHashTable(followers);
+       if(c.userId === c.authorId) return {...c, status: `post's author`};
 
-    const comments = commentsData.map((c)=> {
-      if(hashTableFollowers[c.userId]) return {...c, status: 'following'};
+       return c;
+     });
 
-      if(userId === c.userId) return {...c, status: `post's author`};
-
-      return c;
-    });
-
-    res.status(200).send(comments);
+    res.send(comments).status(200);
   } catch (error) {
     internalServerError(res, error);
   }
