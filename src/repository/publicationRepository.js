@@ -130,22 +130,28 @@ export async function insertComment({ postId, userId, comment }) {
     [postId, userId, comment]
   );
 }
-export async function findCommentByPostId(postId) {
+export async function findCommentByPostId({postId, userId}) {
   return db.query(
     `
     SELECT
-      u.id AS "userId",
+      c.user_id AS "userId",
+	    p.user_id AS "authorId",
       u.name,
       u.avatar_url AS "avatarImage",
       c.comment,
-      c.id
+      c.id,
+	    (c.user_id IN (SELECT "followed_id"
+                FROM followers
+                WHERE "user_id" = $2)) as following
     FROM comments c
-    JOIN users u
+   	JOIN users u
     ON u.id = c.user_id
+	JOIN posts p
+	ON p.id = c.post_id
     WHERE c.post_id = $1
     ORDER BY c.id DESC
   `,
-    [postId]
+    [postId, userId]
   );
 }
 
