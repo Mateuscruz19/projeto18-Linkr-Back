@@ -7,10 +7,11 @@ import {
   sendLikeInPost,
   deleteLikePublication,
   createComment,
+  getCommentsByPostId,
+  getPublication
 } from '../controllers/publicationController.js';
 import validateSchema from '../middlewares/validateSchemas.middleware.js';
 import { publicationSchema, updatePostSchema } from '../models/puclicationSchema.js';
-import { getPublication } from '../controllers/publicationController.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import {
   validateIdAndLimit,
@@ -24,6 +25,7 @@ const router = Router();
 router.get('/publication', authenticate, getPublication);
 router.get('/publication/:postId/likes', authenticate, validateIdAndLimit, getUserLikePublication);
 router.post('/publication/:postId/likes', authenticate, validatePostId, sendLikeInPost);
+router.get('/publication/:postId/comments', authenticate, getCommentsByPostId);
 router.post('/publication/:postId/comments', authenticate, validateSchema(commentSchema), createComment);
 router.post('/publication', validateSchema(publicationSchema), authenticate, postPublication);
 router.put(

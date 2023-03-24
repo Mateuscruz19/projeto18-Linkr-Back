@@ -127,3 +127,33 @@ export async function insertComment({ postId, userId, comment }) {
     [postId, userId, comment]
   );
 }
+export async function findCommentByPostId(postId) {
+  return db.query(
+    `
+    SELECT
+      u.id AS "userId",
+      u.name,
+      u.avatar_url AS "avatarImage",
+      c.comment,
+      c.id
+    FROM comments c
+    JOIN users u
+    ON u.id = c.user_id
+    WHERE c.post_id = $1
+    ORDER BY c.id DESC
+  `,
+    [postId]
+  );
+}
+
+export async function findFollowedsByUserId(userId){
+  return db.query(
+    `
+    SELECT
+      followed_id AS "followedId"
+    FROM followers
+    WHERE user_id = $1
+  `,
+    [userId]
+  );
+}
