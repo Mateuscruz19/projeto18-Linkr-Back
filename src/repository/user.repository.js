@@ -67,3 +67,10 @@ export async function deleteFollowUserRepository(userId, followUserId) {
     `DELETE FROM followers WHERE user_id = ${userId} AND followed_id = ${followUserId};`
   );
 }
+
+export async function doesUserFollowsSomeone(userId){
+  return await db.query(`
+    SELECT * FROM followers
+    WHERE user_id = $1
+  `, [userId])
+}

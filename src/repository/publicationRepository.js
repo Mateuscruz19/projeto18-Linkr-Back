@@ -28,7 +28,7 @@ export async function insertHashtags(insertIndex, hashtags) {
   return result;
 }
 
-export async function getPublications() {
+export async function getPublications(user_id) {
   const result = await db.query(`
     SELECT json_build_object(
       'id', posts.id,
@@ -53,8 +53,11 @@ export async function getPublications() {
     ON posts.id = hashtags.post_id
     LEFT JOIN likes
     ON posts.id = likes.post_id
+    JOIN followers
+    ON followers.followed_id = users.id
+    WHERE followers.user_id = $1
     GROUP BY users.id, posts.id
-    ORDER BY posts.id DESC;`);
+    ORDER BY posts.id DESC;`, [user_id]);
 
   return result;
 }
