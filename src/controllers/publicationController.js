@@ -10,7 +10,12 @@ import {
   findUsersLikByPostId,
   insertLikeInPost,
   deleteLikeInPost,
+  insertComment,
+  findCommentByPostId,
+  findFollowedsByUserId,
 } from "../repository/publicationRepository.js";
+import createFollowersHashTable from "../utils/functions/createHashTable.js";
+import internalServerError from "../utils/functions/internalServerError.js";
 
 export async function getUserLikePublication(req, res) {
   const { postId } = req.params;
@@ -102,7 +107,7 @@ export async function updateDescriptionPublication(req, res) {
 export async function deletePublication(req, res) {
   const { id } = req.params;
   const post = res.locals.post;
-  
+
   try {
     await deleteHashtagByIdPost(id);
     await deletePostById(id);
@@ -125,5 +130,46 @@ export async function deleteLikePublication(req, res) {
   } catch (error) {
     console.log(error);
     res.status(500).send("Ocorreu um erro interno!");
+  }
+}
+
+export async function createComment(req, res) {
+  const { postId } = req.params;
+  const { userId } = res.locals;
+  const { comment } = req.body;
+
+  try {
+    await insertComment({ postId, userId, comment });
+
+    res.sendStatus(201);
+  } catch (error) {
+    internalServerError(res, error);
+  }
+}
+
+export async function getCommentsByPostId(req, res) {
+  const { postId } = req.params;
+  const { userId } = res.locals;
+
+  try {
+    const { rowCount, rows: commentsData } = await findCommentByPostId(postId);
+
+    if (!rowCount) return res.status(200).send(null);
+
+    const { rows: followers } = await findFollowedsByUserId(userId);
+
+    const hashTableFollowers = createFollowersHashTable(followers);
+
+    const comments = commentsData.map((c)=> {
+      if(hashTableFollowers[c.userId]) return {...c, status: 'following'};
+
+      if(userId === c.userId) return {...c, status: `post's author`};
+
+      return c;
+    });
+
+    res.status(200).send(comments);
+  } catch (error) {
+    internalServerError(res, error);
   }
 }

@@ -120,3 +120,40 @@ export async function deleteLikeInPost(postId, userId) {
     userId,
   ]);
 }
+
+export async function insertComment({ postId, userId, comment }) {
+  return db.query(
+    "INSERT INTO comments (post_id, user_id, comment) VALUES ($1, $2, $3);",
+    [postId, userId, comment]
+  );
+}
+export async function findCommentByPostId(postId) {
+  return db.query(
+    `
+    SELECT
+      u.id AS "userId",
+      u.name,
+      u.avatar_url AS "avatarImage",
+      c.comment,
+      c.id
+    FROM comments c
+    JOIN users u
+    ON u.id = c.user_id
+    WHERE c.post_id = $1
+    ORDER BY c.id DESC
+  `,
+    [postId]
+  );
+}
+
+export async function findFollowedsByUserId(userId){
+  return db.query(
+    `
+    SELECT
+      followed_id AS "followedId"
+    FROM followers
+    WHERE user_id = $1
+  `,
+    [userId]
+  );
+}
