@@ -5,6 +5,7 @@ import {
   findUsersByUsername,
   insertFollowUser,
   deleteFollowUserRepository,
+  doesUserFollowsSomeone
 } from '../repository/user.repository.js';
 
 async function showByUsername(req, res) {
@@ -101,6 +102,21 @@ async function deleteFollowUser(req, res) {
   }
 }
 
+async function doesUserFollows(req, res){
+  const userId = res.locals.userId;
+  try {
+    const result = await doesUserFollowsSomeone(userId)
+    if (result.rows.length === 0){
+      res.status(200).send(false)
+    } else {
+      res.status(200).send(true)
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Ocorreu um erro interno!');
+  }
+}
+
 export default {
   showByUsername,
   getCurrentUserById,
@@ -108,4 +124,5 @@ export default {
   postFollowUser,
   deleteFollowUser,
   verifyFollowUser,
+  doesUserFollows
 };

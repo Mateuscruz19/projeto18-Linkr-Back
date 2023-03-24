@@ -29,5 +29,10 @@ router.delete(
   userMiddleware.checkIfTheUserHasBeenFollowed,
   userController.deleteFollowUser
 );
+router.get(
+  '/doesUserFollows',
+  authenticate,
+  userController.doesUserFollows
+)
 
 export { router as usersRouter };
