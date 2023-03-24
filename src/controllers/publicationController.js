@@ -57,7 +57,8 @@ export async function postPublication(req, res) {
 
 export async function getPublication(req, res) {
   try {
-    const result = await getPublications();
+    const userId = res.locals.userId;
+    const result = await getPublications(userId);
 
     const body = result.rows.map((item) => {
       if (item.json_build_object.idUsersLike[0].id === null) {
