@@ -27,38 +27,43 @@ export async function insertHashtags(insertIndex, hashtags) {
   return result;
 }
 
-export async function getPublications() {
+export async function getPublications(user_id) {
   const result = await db.query(`
-  SELECT json_build_object(
-    'id', posts.id,
-    'userId', users.id,
-    'name', users.name,
-    'avatarImage', users.avatar_url,
-    'descriptionPost', posts.description,
-    'linkPost', posts.link,
-    'titleLinkPost', info_link_post.title_link,
-    'descriptionLinkPost', info_link_post.description_link,
-    'imageLinkPost', info_link_post.image_link,
-    'qtyLikesPost', COUNT(likes.id),
-    'idUsersLike', array_agg(json_build_object(
-    'id', likes.user_id
-    )),
-    'hashtags', array_agg(json_build_object(
-        'id', hashtags.id,
-        'nameHashtag', hashtags.name
-    ))
-  )
-  FROM users
-  JOIN posts
-  ON users.id = posts.user_id
-  LEFT JOIN hashtags
-  ON posts.id = hashtags.post_id
-  LEFT JOIN likes
-  ON posts.id = likes.post_id
-  LEFT JOIN info_link_post
+
+    SELECT json_build_object(
+      'id', posts.id,
+      'userId', users.id,
+      'name', users.name,
+      'avatarImage', users.avatar_url,
+      'descriptionPost', posts.description,
+      'linkPost', posts.link,
+      'titleLinkPost', info_link_post.title_link,
+      'descriptionLinkPost', info_link_post.description_link,
+      'imageLinkPost', info_link_post.image_link,
+      'qtyLikesPost', COUNT(likes.id),
+      'idUsersLike', array_agg(json_build_object(
+      'id', likes.user_id
+      )),
+      'hashtags', array_agg(json_build_object(
+          'id', hashtags.id,
+          'nameHashtag', hashtags.name
+      ))
+    )
+    FROM users
+    JOIN posts
+    ON users.id = posts.user_id
+    LEFT JOIN hashtags
+    ON posts.id = hashtags.post_id
+    LEFT JOIN likes
+    ON posts.id = likes.post_id
+    JOIN followers
+    ON followers.followed_id = users.id
+    LEFT JOIN info_link_post
   ON posts.id = info_link_post.post_id
-  GROUP BY users.id, posts.id, info_link_post.id
-  ORDER BY posts.id DESC;`);
+    WHERE followers.user_id = $1
+    GROUP BY users.id, posts.id, info_link_post.id
+    ORDER BY posts.id DESC;`, [user_id]);
+
 
   return result;
 }
@@ -120,5 +125,48 @@ export async function insertInfoLinkScrapping(post_id, title_link, description_l
   return await db.query(
     `INSERT INTO  info_link_post (post_id, title_link, description_link,image_link) VALUES ($1, $2, $3, $4)`,
     [post_id, title_link, description_link, image_link]
+  );
+}
+
+export async function insertComment({ postId, userId, comment }) {
+  return db.query(
+    "INSERT INTO comments (post_id, user_id, comment) VALUES ($1, $2, $3);",
+    [postId, userId, comment]
+  );
+}
+export async function findCommentByPostId({postId, userId}) {
+  return db.query(
+    `
+    SELECT
+      c.user_id AS "userId",
+	    p.user_id AS "authorId",
+      u.name,
+      u.avatar_url AS "avatarImage",
+      c.comment,
+      c.id,
+	    (c.user_id IN (SELECT "followed_id"
+                FROM followers
+                WHERE "user_id" = $2)) as following
+    FROM comments c
+   	JOIN users u
+    ON u.id = c.user_id
+	JOIN posts p
+	ON p.id = c.post_id
+    WHERE c.post_id = $1
+    ORDER BY c.id DESC
+  `,
+    [postId, userId]
+  );
+}
+
+export async function findFollowedsByUserId(userId){
+  return db.query(
+    `
+    SELECT
+      followed_id AS "followedId"
+    FROM followers
+    WHERE user_id = $1
+  `,
+    [userId]
   );
 }
