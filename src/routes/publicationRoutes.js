@@ -8,7 +8,8 @@ import {
   deleteLikePublication,
   createComment,
   getCommentsByPostId,
-  getPublication
+  getPublication,
+  getPuclicationPage
 } from '../controllers/publicationController.js';
 import validateSchema from '../middlewares/validateSchemas.middleware.js';
 import { publicationSchema, updatePostSchema } from '../models/puclicationSchema.js';
@@ -23,6 +24,7 @@ import commentSchema from '../models/commentSchema.js';
 const router = Router();
 
 router.get('/publication', authenticate, getPublication);
+router.get('publication/page/:page', authenticate, getPuclicationPage);
 router.get('/publication/:postId/likes', authenticate, validateIdAndLimit, getUserLikePublication);
 router.post('/publication/:postId/likes', authenticate, validatePostId, sendLikeInPost);
 router.get('/publication/:postId/comments', authenticate, getCommentsByPostId);
