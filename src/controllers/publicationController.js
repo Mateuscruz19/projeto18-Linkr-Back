@@ -1,3 +1,5 @@
+import load from "lodash";
+
 import {
   insertPosts,
   insertHashtags,
@@ -12,6 +14,7 @@ import {
   findCommentByPostId,
 } from "../repository/publicationRepository.js";
 import internalServerError from "../utils/functions/internalServerError.js";
+const PAGE_SIZE = 10;
 
 export async function getUserLikePublication(req, res) {
   const { postId } = req.params;
@@ -69,6 +72,27 @@ export async function getPublication(req, res) {
 
     res.status(200).send(body);
   } catch (err) {
+    res.status(500).send(err.message);
+  }
+}
+
+export async function getPuclicationPage(req, res){
+  const {page} = req.params || 1;
+  try{
+    const userId = res.locals.userId;
+    const result = await getPublications(userId);
+
+    const body = result.rows.map((item) => {
+      if (item.json_build_object.idUsersLike[0].id === null) {
+        item.json_build_object.idUsersLike = [];
+      }
+      return item.json_build_object;
+    });
+
+    const pagineted =  load.chunk(body, PAGE_SIZE)[page - 1] || [];
+
+    res.send(pagineted)
+  }catch(err){
     res.status(500).send(err.message);
   }
 }
