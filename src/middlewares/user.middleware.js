@@ -3,7 +3,6 @@ import { verifyUserIdFollowOtherUser } from '../repository/user.repository.js';
 async function verifyFollowUserIdExist(req, res, next) {
   const followUserId = req.params.followUserId;
 
-  console.log(followUserId);
   if (!followUserId) {
     return res.status(404).send('Precisa informar um id de usuário!');
   }
@@ -19,7 +18,7 @@ async function checkIfTheUserHasBeenFollowed(req, res, next) {
 
   try {
     const followExist = await verifyUserIdFollowOtherUser(userId, followUserId);
-    console.log(followExist.rowCount);
+
     res.locals.followExist = followExist.rowCount;
 
     next();

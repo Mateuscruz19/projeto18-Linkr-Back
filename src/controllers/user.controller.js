@@ -50,7 +50,6 @@ async function getPublicationByUserId(req, res) {
 async function verifyFollowUser(req, res) {
   const followExist = res.locals.followExist;
   try {
-    console.log(followExist);
     if (followExist == 0) {
       return res.send(false);
     }
@@ -67,7 +66,7 @@ async function postFollowUser(req, res) {
   const followUserId = req.params.followUserId;
   const userId = res.locals.userId;
   const followExist = res.locals.followExist;
-  console.log(followExist);
+
   if (followExist > 0) return res.status(409).send('Você não pode seguir alguém já seguido!');
   try {
     await insertFollowUser(userId, followUserId);
@@ -83,13 +82,11 @@ async function deleteFollowUser(req, res) {
   const followUserId = req.params.followUserId;
   const userId = res.locals.userId;
   const followExist = res.locals.followExist;
-  console.log(userId);
 
   if (followExist <= 0)
     return res.status(409).send('Você não pode des seguir alguém que ainda não seguiu!');
 
   try {
-    console.log(followUserId);
     await deleteFollowUserRepository(userId, Number(followUserId));
 
     res.sendStatus(204);

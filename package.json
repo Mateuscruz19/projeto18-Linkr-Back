@@ -27,6 +27,7 @@
     "joi": "^17.8.3",
     "pg": "^8.10.0",
     "react-hashtag": "^2.1.2",
+    "url-metadata": "^2.5.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
