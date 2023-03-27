@@ -24,6 +24,9 @@ export async function findPublicationsByUserId(userId) {
     'avatarImage', users.avatar_url,
     'descriptionPost', posts.description,
     'linkPost', posts.link,
+    'titleLinkPost', info_link_post.title_link,
+    'descriptionLinkPost', info_link_post.description_link,
+    'imageLinkPost', info_link_post.image_link,
     'qtyLikesPost', COUNT(likes.id),
       'idUsersLike', array_agg(json_build_object(
       'id', likes.user_id
@@ -40,8 +43,10 @@ export async function findPublicationsByUserId(userId) {
   ON posts.id = hashtags.post_id
   LEFT JOIN likes
   ON posts.id = likes.post_id
+  LEFT JOIN info_link_post
+  ON posts.id = info_link_post.post_id
   WHERE users.id = $1
-  GROUP BY users.id, posts.id
+  GROUP BY users.id, posts.id, info_link_post.id
   ORDER BY posts.id DESC;
   `,
     [userId]
