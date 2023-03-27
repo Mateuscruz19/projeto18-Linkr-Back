@@ -15,9 +15,8 @@ import {
   findCommentByPostId,
 } from "../repository/publicationRepository.js";
 import internalServerError from "../utils/functions/internalServerError.js";
-import urlMetadata from 'url-metadata';
+import urlMetadata from "url-metadata";
 const PAGE_SIZE = 10;
-
 
 export async function getUserLikePublication(req, res) {
   const { postId } = req.params;
@@ -29,7 +28,7 @@ export async function getUserLikePublication(req, res) {
     res.send(users.rows);
   } catch (error) {
     console.log(error);
-    res.status(500).send('Ocorreu um erro interno!');
+    res.status(500).send("Ocorreu um erro interno!");
   }
 }
 
@@ -57,16 +56,23 @@ export async function postPublication(req, res) {
     }
 
     const ultimoPost = await insertPosts(userId, link, description);
-    const hashtags = description.split(' ').filter((word) => word.charAt() === '#');
+    const hashtags = description
+      .split(" ")
+      .filter((word) => word.charAt() === "#");
     if (hashtags.length) {
       const inserts = [];
       for (let index = 1; index <= hashtags.length; index++) {
         inserts.push(`(${ultimoPost.rows[0].id} ,$${index})`);
       }
-      await insertHashtags(inserts.join(', '), hashtags);
+      await insertHashtags(inserts.join(", "), hashtags);
     }
 
-    await insertInfoLinkScrapping(ultimoPost.rows[0].id, title_link, description_link, image_link);
+    await insertInfoLinkScrapping(
+      ultimoPost.rows[0].id,
+      title_link,
+      description_link,
+      image_link
+    );
 
     res.sendStatus(200);
   } catch (err) {
@@ -93,9 +99,9 @@ export async function getPublication(req, res) {
   }
 }
 
-export async function getPuclicationPage(req, res){
-  const {page} = req.params || 1;
-  try{
+export async function getPuclicationPage(req, res) {
+  const { page } = req.params || 1;
+  try {
     const userId = res.locals.userId;
     const result = await getPublications(userId);
 
@@ -106,10 +112,10 @@ export async function getPuclicationPage(req, res){
       return item.json_build_object;
     });
 
-    const pagineted =  load.chunk(body, PAGE_SIZE)[page - 1] || [];
+    const pagineted = load.chunk(body, PAGE_SIZE)[page - 1] || [];
 
-    res.send(pagineted)
-  }catch(err){
+    res.send(pagineted);
+  } catch (err) {
     res.status(500).send(err.message);
   }
 }
@@ -124,7 +130,7 @@ export async function sendLikeInPost(req, res) {
     res.sendStatus(200);
   } catch (error) {
     console.log(error);
-    res.status(500).send('Ocorreu um erro interno!');
+    res.status(500).send("Ocorreu um erro interno!");
   }
 }
 
@@ -135,10 +141,10 @@ export async function updateDescriptionPublication(req, res) {
   try {
     await updatePostByid(description, id);
 
-    return res.send('Alterado com sucesso!');
+    return res.send("Alterado com sucesso!");
   } catch (error) {
     console.log(error);
-    res.status(500).send('Ocorreu um erro interno!');
+    res.status(500).send("Ocorreu um erro interno!");
   }
 }
 
@@ -153,7 +159,7 @@ export async function deletePublication(req, res) {
     res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    res.status(500).send('Ocorreu um erro interno!');
+    res.status(500).send("Ocorreu um erro interno!");
   }
 }
 
@@ -167,7 +173,7 @@ export async function deleteLikePublication(req, res) {
     res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    res.status(500).send('Ocorreu um erro interno!');
+    res.status(500).send("Ocorreu um erro interno!");
   }
 }
 
@@ -190,17 +196,20 @@ export async function getCommentsByPostId(req, res) {
   const { userId } = res.locals;
 
   try {
-    const { rowCount, rows: commentsData } = await findCommentByPostId({postId, userId});
+    const { rowCount, rows: commentsData } = await findCommentByPostId({
+      postId,
+      userId,
+    });
 
     if (!rowCount) return res.status(200).send(null);
 
-     const comments = commentsData.map((c)=> {
-       if(c.following) return {...c,status: 'following'};
+    const comments = commentsData.map((c) => {
+      if (c.userId === c.authorId) return { ...c, status: `post's author` };
 
-       if(c.userId === c.authorId) return {...c, status: `post's author`};
+      if (c.following) return { ...c, status: "following" };
 
-       return c;
-     });
+      return c;
+    });
 
     res.send(comments).status(200);
   } catch (error) {
